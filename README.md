@@ -17,7 +17,7 @@
 
 Built entirely without external libraries, the system utilizes direct BIOS and DOS interrupts for real-time keystroke capture and ASCII rendering. The core logic is powered by a custom Heuristic AI bot that relies on strict stack preservation and cascading control structures (`CMP`/`JMP`) to execute automated, strategic opponent logic within the constraints of a segmented memory model.
 
-> **[DRAG AND DROP A GIF OF YOUR GAMEPLAY / COLORED BOARD HERE]**
+<img width="802" height="448" alt="coal" src="https://github.com/user-attachments/assets/6555aa29-a61e-42f2-b2f9-fb8dc8c6d444" />
 
 ---
 
