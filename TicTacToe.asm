@@ -221,9 +221,87 @@ DELAY_INNER:
     RET
 THINKING_DELAY ENDP
 
-; --- UMAMA'S STUB ---
+; ==========================================
+; WIN VALIDATION MODULE (UMAMA)
+; ==========================================
 CHECK_WIN PROC
+    LEA SI, board
+    MOV AL, [SI]
+    CMP AL, [SI+1]
+    JNE WR2
+    CMP AL, [SI+2]
+    JNE WR2
+    CMP AL, ' '
+    JE WR2
+    JMP IS_WIN
+WR2: 
+    MOV AL, [SI+3]
+    CMP AL, [SI+4]
+    JNE WR3
+    CMP AL, [SI+5]
+    JNE WR3
+    CMP AL, ' '
+    JE WR3
+    JMP IS_WIN
+WR3: 
+    MOV AL, [SI+6]
+    CMP AL, [SI+7]
+    JNE WC1
+    CMP AL, [SI+8]
+    JNE WC1
+    CMP AL, ' '
+    JE WC1
+    JMP IS_WIN
+WC1: 
+    MOV AL, [SI]
+    CMP AL, [SI+3]
+    JNE WC2
+    CMP AL, [SI+6]
+    JNE WC2
+    CMP AL, ' '
+    JE WC2
+    JMP IS_WIN
+WC2: 
+    MOV AL, [SI+1]
+    CMP AL, [SI+4]
+    JNE WC3
+    CMP AL, [SI+7]
+    JNE WC3
+    CMP AL, ' '
+    JE WC3
+    JMP IS_WIN
+WC3: 
+    MOV AL, [SI+2]
+    CMP AL, [SI+5]
+    JNE WDIAG
+    CMP AL, [SI+8]
+    JNE WDIAG
+    CMP AL, ' '
+    JE WDIAG
+    JMP IS_WIN
+WDIAG: 
+    MOV AL, [SI]
+    CMP AL, [SI+4]
+    JNE WD2
+    CMP AL, [SI+8]
+    JNE WD2
+    CMP AL, ' '
+    JE WD2
+    JMP IS_WIN
+WD2: 
+    MOV AL, [SI+2]
+    CMP AL, [SI+4]
+    JNE IS_NO_WIN
+    CMP AL, [SI+6]
+    JNE IS_NO_WIN
+    CMP AL, ' '
+    JE IS_NO_WIN
+    JMP IS_WIN
+IS_NO_WIN: 
     MOV AL, 0
+    RET
+IS_WIN: 
+    MOV AL, 1
     RET
 CHECK_WIN ENDP
 
