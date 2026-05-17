@@ -305,23 +305,247 @@ IS_WIN:
     RET
 CHECK_WIN ENDP
 
-; --- HAMZA'S STUBS ---
+; ==========================================
+; AI MASTER LOGIC CONTROLLER (HAMZA)
+; ==========================================
 COMPUTER_MOVE:
+    PRINT_STRING msgThink
+    CALL THINKING_DELAY  
+
+    CMP difficulty, 3
+    JE COMP_HARD
+    CMP difficulty, 2
+    JE COMP_MED
+    JMP COMP_EASY
+
+COMP_HARD:
+    CALL AI_TRY_WIN
+    CMP AL, 1
+    JE AFTER_MOVE
+    CALL AI_TRY_BLOCK
+    CMP AL, 1
+    JE AFTER_MOVE
+    MOV BX, 4
+    CMP board[BX], ' '
+    JNE CH_TRAPS
+    MOV board[BX], 'O'
     JMP AFTER_MOVE
+CH_TRAPS:
+    CALL AI_TRAP_DEFENSE
+    CMP AL, 1
+    JE AFTER_MOVE
+
+COMP_MED:
+    CALL AI_TAKE_CORNER
+    CMP AL, 1
+    JE AFTER_MOVE
+
+COMP_EASY:
+    CALL AI_TAKE_EDGE
+    JMP AFTER_MOVE
+
+; ==========================================
+; AI BRAIN SUBROUTINES (HAMZA)
+; ==========================================
 AI_TRY_WIN PROC
+    LEA SI, win_lines
+    MOV CX, 8
+CW_LOOP:
+    PUSH CX
+    PUSH SI
+    XOR BX, BX
+    MOV BL, [SI]
+    MOV AL, board[BX]
+    MOV BL, [SI+1]
+    MOV AH, board[BX]
+    MOV BL, [SI+2]
+    MOV DH, board[BX]
+
+    CMP AL, 'O'
+    JNE CW_C2
+    CMP AH, 'O'
+    JNE CW_C2
+    CMP DH, ' '
+    JNE CW_C2
+    MOV BL, [SI+2]
+    JMP CW_EXEC
+CW_C2:
+    CMP AL, 'O'
+    JNE CW_C3
+    CMP AH, ' '
+    JNE CW_C3
+    CMP DH, 'O'
+    JNE CW_C3
+    MOV BL, [SI+1]
+    JMP CW_EXEC
+CW_C3:
+    CMP AL, ' '
+    JNE CW_NEXT
+    CMP AH, 'O'
+    JNE CW_NEXT
+    CMP DH, 'O'
+    JNE CW_NEXT
+    MOV BL, [SI]
+CW_EXEC:
+    MOV board[BX], 'O'
+    POP SI
+    POP CX
+    MOV AL, 1
+    RET
+CW_NEXT:
+    POP SI
+    ADD SI, 3
+    POP CX
+    DEC CX
+    JNZ CW_LOOP
+    MOV AL, 0
     RET
 AI_TRY_WIN ENDP
+
 AI_TRY_BLOCK PROC
+    LEA SI, win_lines
+    MOV CX, 8
+CB_LOOP:
+    PUSH CX
+    PUSH SI
+    XOR BX, BX
+    MOV BL, [SI]
+    MOV AL, board[BX]
+    MOV BL, [SI+1]
+    MOV AH, board[BX]
+    MOV BL, [SI+2]
+    MOV DH, board[BX]
+
+    CMP AL, 'X'
+    JNE CB_C2
+    CMP AH, 'X'
+    JNE CB_C2
+    CMP DH, ' '
+    JNE CB_C2
+    MOV BL, [SI+2]
+    JMP CB_EXEC
+CB_C2:
+    CMP AL, 'X'
+    JNE CB_C3
+    CMP AH, ' '
+    JNE CB_C3
+    CMP DH, 'X'
+    JNE CB_C3
+    MOV BL, [SI+1]
+    JMP CB_EXEC
+CB_C3:
+    CMP AL, ' '
+    JNE CB_NEXT
+    CMP AH, 'X'
+    JNE CB_NEXT
+    CMP DH, 'X'
+    JNE CB_NEXT
+    MOV BL, [SI]
+CB_EXEC:
+    MOV board[BX], 'O'
+    POP SI
+    POP CX
+    MOV AL, 1
+    RET
+CB_NEXT:
+    POP SI
+    ADD SI, 3
+    POP CX
+    DEC CX
+    JNZ CB_LOOP
+    MOV AL, 0
     RET
 AI_TRY_BLOCK ENDP
+
 AI_TRAP_DEFENSE PROC
+    MOV AL, 0
+    MOV BX, 0
+    CMP board[BX], 'X'
+    JNE ATD_2
+    MOV BX, 8
+    CMP board[BX], 'X'
+    JNE ATD_2
+    MOV BX, 1
+    CMP board[BX], ' '
+    JNE ATD_2
+    MOV board[BX], 'O'
+    MOV AL, 1
+    RET
+ATD_2:
+    MOV BX, 2
+    CMP board[BX], 'X'
+    JNE ATD_3
+    MOV BX, 6
+    CMP board[BX], 'X'
+    JNE ATD_3
+    MOV BX, 1
+    CMP board[BX], ' '
+    JNE ATD_3
+    MOV board[BX], 'O'
+    MOV AL, 1
+    RET
+ATD_3:
+    MOV BX, 0
+    CMP board[BX], 'X'
+    JNE ATD_4
+    MOV BX, 7
+    CMP board[BX], 'X'
+    JNE ATD_4
+    MOV BX, 6
+    CMP board[BX], ' '
+    JNE ATD_4
+    MOV board[BX], 'O'
+    MOV AL, 1
+    RET
+ATD_4:
     RET
 AI_TRAP_DEFENSE ENDP
+
 AI_TAKE_CORNER PROC
+    MOV BX, 0
+    CMP board[BX], ' '
+    JE ATC_FOUND
+    MOV BX, 2
+    CMP board[BX], ' '
+    JE ATC_FOUND
+    MOV BX, 6
+    CMP board[BX], ' '
+    JE ATC_FOUND
+    MOV BX, 8
+    CMP board[BX], ' '
+    JE ATC_FOUND
+    MOV AL, 0
+    RET
+ATC_FOUND:
+    MOV board[BX], 'O'
+    MOV AL, 1
     RET
 AI_TAKE_CORNER ENDP
+
 AI_TAKE_EDGE PROC
+    MOV BX, 1
+    CMP board[BX], ' '
+    JE ATE_FOUND
+    MOV BX, 3
+    CMP board[BX], ' '
+    JE ATE_FOUND
+    MOV BX, 5
+    CMP board[BX], ' '
+    JE ATE_FOUND
+    MOV BX, 7
+    CMP board[BX], ' '
+    JE ATE_FOUND
+    MOV BX, 0
+ATE_LOOP:
+    CMP board[BX], ' '
+    JE ATE_FOUND
+    INC BX
+    CMP BX, 9
+    JL ATE_LOOP
+    MOV AL, 0
+    RET
+ATE_FOUND:
+    MOV board[BX], 'O'
+    MOV AL, 1
     RET
 AI_TAKE_EDGE ENDP
-
-END MAIN
